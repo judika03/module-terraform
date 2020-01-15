@@ -29,6 +29,7 @@ variable "region" {
 
 variable "subnetwork" {
   description = "The subnetwork to host the compute instances in"
+  default     = "default"
 }
 
 variable "num_instances" {

@@ -66,9 +66,6 @@ done
 
 # Clustering
 echo "yes" | sudo redis-cli --cluster create ${redis1} ${redis2} ${redis3} 
-idmaster="$(redis-cli -p 7001 cluster nodes | grep myself | cut -d" " -f1)"
-echo $idmaster
-redis-cli --cluster add-node ${redis22} ${redis1} --cluster-slave --cluster-master-id $idmaster
 
 exit 0
 
