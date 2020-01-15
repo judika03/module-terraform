@@ -1,0 +1,6 @@
+.terraform
+*.json
+*.tfstate
+*.swp
+*.info
+*.backup
