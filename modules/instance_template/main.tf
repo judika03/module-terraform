@@ -29,15 +29,18 @@ locals {
 
   all_disks = concat(local.boot_disk, var.additional_disks)
 
-  # NOTE: Even if all the shielded_instance_config values are false, if the
-  # config block exists and an unsupported image is chosen, the apply will fail
-  # so we use a single-value array with the default value to initialize the block
-  # only if it is enabled.
+  
   shielded_vm_configs = var.enable_shielded_vm ? [true] : []
 }
 
+resource "google_service_account" "instance-group" {
+  account_id = "redis-test"
+  display_name = "instance-group"
+  project      = "${var.project_id}"
+}
+
 ####################
-# Instance Template
+# Instance Template 
 ####################
 resource "google_compute_instance_template" "tpl" {
   name_prefix             = "${var.name_prefix}-"
@@ -66,8 +69,8 @@ resource "google_compute_instance_template" "tpl" {
     }
   }
   service_account {
-    email  = "{var.service_account}@{var.project_id}.iam.gserviceaccount.com"
-    scopes = ["cloud-platform"]
+    email  = google_service_account.instance-group.email
+    scopes = ["cloud-platform","compute-rw"]
   }
 
   network_interface {

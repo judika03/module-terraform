@@ -30,6 +30,11 @@ variable "region" {
   type        = string
 }
 
+variable "zone" {
+  description = "The GCP region where the unmanaged instance group resides."
+  type        = string
+}
+
 variable "subnetwork" {
   description = "Subnet to deploy to. Only one of network or subnetwork should be specified."
   default     = ""
@@ -76,4 +81,8 @@ variable "access_config" {
     network_tier = string
   }))
   default = [ ]
+}
+
+variable "instances" {
+  description = "Instance template self_link used to create compute instances"
 }

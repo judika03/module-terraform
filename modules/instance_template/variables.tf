@@ -131,6 +131,8 @@ variable "metadata" {
 ##################
 variable "service_account" {
   description = "The GCP project to use for integration tests"
+    default     = ""
+
 }
 
 

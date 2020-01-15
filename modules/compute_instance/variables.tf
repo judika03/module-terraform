@@ -40,3 +40,10 @@ variable "region" {
   default     = null
 }
 
+variable "zone" {
+  type        = string
+  description = "Region where the instance template should be created."
+  default     = null
+}
+
+

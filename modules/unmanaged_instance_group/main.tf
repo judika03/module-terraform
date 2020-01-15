@@ -29,34 +29,14 @@ data "google_compute_zones" "available" {
 # Instances
 #############
 
-resource "google_compute_instance_from_template" "compute_instance" {
-  provider = google
-  count    = local.num_instances
-  name     = "${local.hostname}-${format("%03d", count.index + 1)}"
-  zone     = data.google_compute_zones.available.names[count.index % length(data.google_compute_zones.available.names)]
-
-  network_interface {
-    network            = var.network
-    subnetwork         = var.subnetwork
-    subnetwork_project = var.subnetwork_project
-    network_ip         = length(var.static_ips) == 0 ? "" : element(local.static_ips, count.index)
-
-  }
-
-  source_instance_template = var.instance_template
-}
 
 resource "google_compute_instance_group" "instance_group" {
   provider = google
   count    = local.instance_group_count
   name     = "${local.hostname}-instance-group-${format("%03d", count.index + 1)}"
   project  = var.project_id
-  zone     = element(data.google_compute_zones.available.names, count.index)
-  instances = matchkeys(
-    google_compute_instance_from_template.compute_instance.*.self_link,
-    google_compute_instance_from_template.compute_instance.*.zone,
-    [data.google_compute_zones.available.names[count.index]],
-  )
+  zone     =  var.zone
+  instances = var.instances
 
   dynamic "named_port" {
     for_each = var.named_ports

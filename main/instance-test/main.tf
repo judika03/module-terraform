@@ -60,6 +60,7 @@ module "compute_instance-redis" {
   hostname          = "redis"
   instance_template = module.instance_template.self_link
 }
+
 module "umig" {
   source            = "../../modules/unmanaged_instance_group"
   project_id        = var.project_id
