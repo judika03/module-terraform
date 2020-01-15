@@ -44,20 +44,30 @@ module "instance_template" {
 module "compute_instance" {
   source            = "../../modules/compute_instance"
   region            = var.region
+  zone              = var.zone
   subnetwork        = var.subnetwork
   num_instances     = var.num_instances
   hostname          = "instance-simple"
   instance_template = module.instance_template.self_link
 }
 
+module "compute_instance-redis" {
+  source            = "../../modules/compute_instance"
+  region            = var.region
+  zone              = var.zone
+  subnetwork        = var.subnetwork
+  num_instances     = var.num_instances
+  hostname          = "redis"
+  instance_template = module.instance_template.self_link
+}
 module "umig" {
   source            = "../../modules/unmanaged_instance_group"
   project_id        = var.project_id
   subnetwork        = var.subnetwork
-  num_instances     = var.num_instances
-  hostname          = "umig-simple"
+  hostname          = "umig-judika"
   instance_template = module.instance_template.self_link
   region            = var.region
+  zone              = var.zone
+  instances         = module.compute_instance.instances_self_links
 }
-
 

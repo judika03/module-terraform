@@ -27,6 +27,12 @@ variable "region" {
   default     = "asia-southeast1"
 }
 
+variable "zone" {
+  description = "The GCP region to create and test resources in"
+  type        = string
+  default     = "asia-southeast1-a"
+}
+
 variable "subnetwork" {
   description = "The subnetwork to host the compute instances in"
   default     = "default"
@@ -34,10 +40,7 @@ variable "subnetwork" {
 
 variable "num_instances" {
   description = "Number of instances to create"
-}
-
-variable "target_size" {
-  description = "The target number of running instances for this managed instance group. This value should always be explicitly set unless this resource is attached to an autoscaler, in which case it should never be set."
+  default="3"
 }
 
 
@@ -51,3 +54,4 @@ variable "prefix" {
   description = "Prefix applied to service account names."
   default     = "aku"
 }
+
