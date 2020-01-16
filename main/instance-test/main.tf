@@ -22,14 +22,6 @@ module "service_accounts" {
 ]
 }
 
-data "template_file" "config1" {
-  template = "${file("config/redis1.sh.tpl")}"
-  vars = {
-  redis1 = "192.168.2.1:7001"
-  redis2 = "192.168.2.2:7001"
-  redis3 = "192.168.2.3:7001"
-  }
-}
 module "instance_template" {
   source          = "../../modules/instance_template"
   region          = var.region
@@ -37,9 +29,21 @@ module "instance_template" {
   service_account = var.service_account
   project_id = var.project_id
   network_ip = "${google_compute_address.redis-spid-11.address}"
-  startup_script="${data.template_file.config1.rendered}"
+  startup_script=templatefile("config/redis/redis1.sh.tpl",{
+  redis1 = "192.168.2.1:7001",
+  redis2 = "192.168.2.2:7001",
+  redis3 = "192.168.2.3:7001"})
 }
 
+module "single_compute_instance" {
+  source            = "../../modules/single_compute_instance"
+  name              = var.name
+  zone              = var.zone
+  subnetwork        = var.subnetwork
+  service_account = var.service_account
+  network_ip = "${google_compute_address.redis-spid-11.address}"
+  
+}
 
 module "compute_instance" {
   source            = "../../modules/compute_instance"

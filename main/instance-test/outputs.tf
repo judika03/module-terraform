@@ -10,3 +10,7 @@ output "available_zones" {
   value       = module.compute_instance.available_zones
 }
 
+output "service_account" {
+  description = "Service account resource (for single use)."
+  value       = module.service_accounts.service_account
+}
