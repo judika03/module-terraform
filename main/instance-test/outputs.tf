@@ -14,3 +14,8 @@ output "service_account" {
   description = "Service account resource (for single use)."
   value       = module.service_accounts.service_account
 }
+
+output "service_account-email" {
+  description = "Service account resource (for single use)."
+  value       = module.service_accounts.email
+}

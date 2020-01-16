@@ -39,6 +39,7 @@ module "single_compute_instance" {
   source            = "../../modules/single_compute_instance"
   name              = var.name
   zone              = var.zone
+  email             = module.service_accounts.email
   subnetwork        = var.subnetwork
   service_account = var.service_account
   network_ip = "${google_compute_address.redis-spid-11.address}"

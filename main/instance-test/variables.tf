@@ -40,7 +40,7 @@ variable "prefix" {
 }
 
 variable "name" {
-    default="judika"
+    default="judikaa"
 }
 
 
