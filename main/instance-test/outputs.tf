@@ -2,7 +2,7 @@
 
 output "instances_self_links" {
   description = "List of self-links for compute instances"
-  value       = [module.compute_instance.instances_self_links,module.compute_instance-redis.instances_self_links]
+  value       = [module.compute_instance.instances_self_links]
 }
 
 output "available_zones" {
@@ -19,3 +19,6 @@ output "service_account-email" {
   description = "Service account resource (for single use)."
   value       = module.service_accounts.email
 }
+
+
+

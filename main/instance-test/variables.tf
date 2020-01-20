@@ -25,7 +25,7 @@ variable "subnetwork" {
 
 variable "num_instances" {
   description = "Number of instances to create"
-  default="3"
+  default="1"
 }
 
 variable "service_account" {
@@ -39,9 +39,47 @@ variable "prefix" {
   default     = "aku"
 }
 
-variable "name" {
-    default="judikaa"
+
+
+variable "cluster_name" {
+  description = "Name of the elasticsearch cluster, used in node discovery"
+  default     = "elasticsearch"
+}
+
+variable "zones" {
+  type    = "list"
+  default = ["asia-southeast1-a", "asia-southeast1-b", "asia-southeast1-c"]
 }
 
 
+variable "master_node" {
+  description = "Node functions as master node"
+  default     = true
+}
 
+variable "data_node" {
+  description = "Node functions as data node"
+  default     = false
+}
+
+variable "heap_size" {
+  description = "Heap size, should be half of the node memory up to 31g"
+  default     = "4g"
+}
+variable "minimum_master_nodes" {
+  description = "Minimum master node"
+  default     = 2
+}
+
+variable "master_node1" {
+  description = "Node functions as master node"
+  default     = false
+}
+variable "data_node1" {
+  description = "Node functions as data node"
+  default     = true
+}
+
+variable "master_machine_type" {
+  default = "n1-standard-2"
+}

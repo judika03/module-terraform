@@ -64,7 +64,7 @@ sleep 40
 done
 idmaster="$(redis-cli -p 7001 cluster nodes | grep myself | cut -d" " -f1)"
 echo $idmaster
-redis-cli --cluster add-node ${redis33} ${redis2} --cluster-slave --cluster-master-id $idmaster
+redis-cli --cluster add-node ${redis3}:7002 ${redis2}:7001 --cluster-slave --cluster-master-id $idmaster
 
 exit 0
 

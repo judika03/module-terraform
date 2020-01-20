@@ -61,11 +61,14 @@ WantedBy=multi-user.target
 
 sudo systemctl start redis-$i.service
 sudo systemctl enable redis-$i.service
-sleep 40
+sleep 20
 done
 
 # Clustering
-echo "yes" | sudo redis-cli --cluster create ${redis1} ${redis2} ${redis3} 
+echo "yes" | sudo redis-cli --cluster create ${redis1}:7001 ${redis2}:7001 ${redis3}:7001
+sleep 20
+idmaster="$(redis-cli -p 7001 cluster nodes | grep myself | cut -d" " -f1)"
+echo $idmaster
+redis-cli --cluster add-node ${redis2}:7002 ${redis1}:7001 --cluster-slave --cluster-master-id $idmaster
 
 exit 0
-
