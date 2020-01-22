@@ -6,127 +6,54 @@ provider "google" {
   version = "~> 2.7.0"
 }
 
-
-resource "google_compute_address" "redis-1" {
-  project      = "${var.project_id}"
-  name         = "redis-1"
-  subnetwork   = "default"
-  address_type = "INTERNAL"
-  region       = "${var.region}"
-}
-
-resource "google_compute_address" "redis-2" {
-  project      = "${var.project_id}"
-  name         = "redis-2"
-  subnetwork   = "default"
-  address_type = "INTERNAL"
-  region       = "${var.region}"
-}
-
-resource "google_compute_address" "redis-3" {
-  project      = "${var.project_id}"
-  name         = "redis-3"
-  subnetwork   = "default"
-  address_type = "INTERNAL"
-  region       = "${var.region}"
-}
-resource "google_compute_address" "redis-4" {
-  project      = "${var.project_id}"
-  name         = "redis-4"
-  subnetwork   = "default"
-  address_type = "INTERNAL"
-  region       = "${var.region}"
-}
-
-module "service_accounts" {
-  source        = "../../modules/service_account"
-  project_id    = var.project_id
-  prefix        = var.prefix
-  names         = ["redis-cluster"]
-  project_roles = ["${var.project_id}=>roles/viewer","${var.project_id}=>roles/compute.admin",
-]
-}
-
-
-
-module "single_compute_instance_redis-1" {
-  source            = "../../modules/compute_instance-redis"
-  name              = "redis-1"
-  zone              = var.zone
-  email             = module.service_accounts.email
-  subnetwork        = var.subnetwork
-  service_account = var.service_account
-  network_ip = "${google_compute_address.redis-1.address}"
-  startup_script=  "${data.template_file.startup1.rendered}"
-
-}
-
-  module "single_compute_instance_redis-2" {
-  source            = "../../modules/compute_instance-redis"
-  name              = "redis-2"
-  zone              = var.zone
-  email             = module.service_accounts.email
-  subnetwork        = var.subnetwork
-  service_account = var.service_account
-  network_ip = "${google_compute_address.redis-2.address}"
-    startup_script=  "${data.template_file.startup2.rendered}"
-
-  }
-
-  module "single_compute_instance_redis-3" {
-  source            = "../../modules/compute_instance-redis"
-  name              = "redis-3"
-  zone              = var.zone
-  email             = module.service_accounts.email
-  subnetwork        = var.subnetwork
-  service_account = var.service_account
-  network_ip = "${google_compute_address.redis-3.address}"
-  startup_script=  "${data.template_file.startup3.rendered}"
-  }
-
-
-
-
-
 module "single_compute_instance" {
   source            = "../../modules/single_compute_instance"
-  name              = "redis-1"
+  name              = "spid-"
   zone              = var.zone
   email             = module.service_accounts.email
   subnetwork        = var.subnetwork
   service_account = var.service_account
   instances_list ={
-    vm-1 = {
+     redis-1 = {
         startup="${data.template_file.startup1.rendered}"
-        ipName = "ip_redis1"
-        network_ip= google_compute_address.internal["vm1"].address
+        network_ip= google_compute_address.internal["redis-1"].address
+        machine_type= "n1-standard-2"
     }
-    vm-2 = {
-        startup="${data.template_file.startup1.rendered}"
-        ipName = "ip_redis1"
-        network_ip= google_compute_address.internal["vm2"].address
+     redis-2 = {
+        startup="${data.template_file.startup2.rendered}"
+        network_ip= google_compute_address.internal["redis-2"].address
+        machine_type= "n1-standard-1"
+    }
+     redis-3 = {
+        startup="${data.template_file.startup3.rendered}"
+        network_ip= google_compute_address.internal["redis-3"].address
+        machine_type= "n1-standard-2"
+    }
+     kibana = {
+        startup=templatefile("config/kibana/kibana.sh.tpl",{})
+        network_ip= null
+        machine_type= "n1-standard-2"
     }
   }
 }
 
 resource "google_compute_address" "internal"{
-    for_each =toset(["vm1","vm2"])
+    for_each =toset(["redis-1","redis-2","redis-3","redis-5"])
     name =each.key
     address_type= "INTERNAL"
     region       = "${var.region}"
     project      = "${var.project_id}"
-  
 }
+
+
 module "instance_template" {
   source          = "../../modules/instance_template"
   region          = var.region
   subnetwork      = var.subnetwork
   service_account = var.service_account
-    machine_type         =var.master_machine_type
-
+  machine_type         =var.master_machine_type
   project_id = var.project_id
   startup_script="${data.template_file.startup3.rendered}"
-  
 }
 
 module "instance_template-es-master" {
@@ -162,7 +89,6 @@ module "managed_instance_group-master" {
     port = 9200
   }]
 }
-
 
 module "managed_instance_group-data" {
   source            = "../../modules/manager_instance_group"
