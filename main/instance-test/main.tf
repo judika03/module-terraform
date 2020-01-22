@@ -34,6 +34,11 @@ module "single_compute_instance" {
         network_ip= null
         machine_type= "n1-standard-2"
     }
+    kafka-1 = {
+        startup=templatefile("config/kafka/kafka.sh.tpl",{})
+        network_ip= null
+        machine_type= "n1-standard-2"
+    }
   }
 }
 
