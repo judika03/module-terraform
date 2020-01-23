@@ -12,7 +12,7 @@ variable "name_prefix" {
 
 variable "machine_type" {
   description = "Machine type to create, e.g. n1-standard-1"
-  default     = "n1-standard-1"
+  default     = ""
 }
 
 variable "can_ip_forward" {
@@ -54,7 +54,7 @@ variable "source_image" {
 
 variable "source_image_family" {
   description = "Source image family. If neither source_image nor source_image_family is specified, defaults to the latest public CentOS image."
-  default     = "centos-7"
+  default     = "ubuntu-1804-lts"
 }
 
 variable "source_image_project" {
@@ -171,4 +171,20 @@ variable "access_config" {
     network_tier = string
   }))
   default = []
+}
+
+
+variable "email" {
+    default=""
+}
+
+variable "template_list" {
+  description= "list template"
+  type=map
+  default = {
+  startup=""
+  machine_type=""
+
+  }
+  
 }

@@ -29,15 +29,9 @@ locals {
 
   all_disks = concat(local.boot_disk, var.additional_disks)
 
-  
-  shielded_vm_configs = var.enable_shielded_vm ? [true] : []
 }
 
-resource "google_service_account" "instance-group" {
-  account_id = "redis-test"
-  display_name = "instance-group"
-  project      = "${var.project_id}"
-}
+
 
 ####################
 # Instance Template 
@@ -68,17 +62,14 @@ resource "google_compute_instance_template" "tpl" {
       type         = lookup(disk.value, "type", null)
     }
   }
-  service_account {
-    email  = google_service_account.instance-group.email
+service_account {
+    email  = var.email
     scopes = ["cloud-platform","compute-rw"]
   }
-
   network_interface {
     network            = var.network
     subnetwork         = var.subnetwork
     subnetwork_project = var.subnetwork_project
-    network_ip = var.network_ip
-
   }
 
   lifecycle {
@@ -92,12 +83,5 @@ resource "google_compute_instance_template" "tpl" {
   }
   
 
-  dynamic "shielded_instance_config" {
-    for_each = local.shielded_vm_configs
-    content {
-      enable_secure_boot          = lookup(var.shielded_instance_config, "enable_secure_boot", shielded_instance_config.value)
-      enable_vtpm                 = lookup(var.shielded_instance_config, "enable_vtpm", shielded_instance_config.value)
-      enable_integrity_monitoring = lookup(var.shielded_instance_config, "enable_integrity_monitoring", shielded_instance_config.value)
-    }
-  }
+ 
 }

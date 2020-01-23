@@ -50,12 +50,22 @@ resource "google_organization_iam_member" "xpn_admin" {
   member = "serviceAccount:${google_service_account.service_accounts[count.index].email}"
 }
 
-resource "google_organization_iam_member" "organization_viewer" {
+resource "google_project_iam_member" "redis_logs" {
   count  = local.xpn ? length(var.names) : 0
-  org_id = var.org_id
-  role   = "roles/resourcemanager.organizationViewer"
+  project = var.project_id
+ role    = "roles/logging.logWriter"
+ member = "serviceAccount:${google_service_account.service_accounts[count.index].email}"
+
+}
+
+resource "google_project_iam_member" "redis_metrics" {
+    count  = local.xpn ? length(var.names) : 0
+
+  project = var.project_id
+  role    = "roles/monitoring.metricWriter"
   member = "serviceAccount:${google_service_account.service_accounts[count.index].email}"
 }
+
 
 # keys
 resource "google_service_account_key" "keys" {
