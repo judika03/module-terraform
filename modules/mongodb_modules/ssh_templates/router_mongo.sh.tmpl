@@ -1,0 +1,63 @@
+## create directory needed for mongo ##
+
+sudo mkdir /var/log/mongodb -p
+sudo mkdir /data -p
+sudo mkdir /data/mongodb -p
+
+
+## remove default config file ##
+sudo rm /etc/mongod.conf
+
+
+## creating config file of config server ##
+sudo echo "
+systemLog:
+  destination: file
+  path: /var/log/mongodb/mongod-config.log
+  logAppend: true
+storage:
+  dbPath: /data/mongodb
+net:
+  bindIp: ${config_internalIp}
+  port: ${config_port}
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: ${config_replicaSetName}
+" >> /etc/mongod-config.conf
+
+
+## creating config file of router ##
+sudo echo "
+systemLog:
+  destination: file
+  path: /var/log/mongodb/mongos.log
+  logAppend: true
+sharding:
+  configDB: ${config_replicaSetName}/${config_internalIp}:${config_port}
+net:
+  bindIp: ${config_internalIp}
+  port: 27020
+" >> /etc/mongos.conf
+
+
+## initiate config server ##
+sudo mongod --config /etc/mongod-config.conf &
+sleep 10
+
+## connect to config server and initiate replica set ##
+mongo --host ${config_internalIp} --port ${config_port} --eval "rs.initiate()";
+
+sleep 5
+
+## initiate router ##
+sudo mongos --config /etc/mongos.conf &
+sleep 10
+
+
+# replicasetname is the name of the shard to be added (vm-1) AND its ip
+mongo --host ${externalIp} --port 27020 --eval "sh.addShard('${shard_address}')"; 
+
+
+# db name is the name of the db from vm 1... shard key -> field yg jdi key untuk di hash... index type  (hashed, 1, -1)
+mongo --host ${externalIp} --port 27020 --eval "sh.enableSharding('${databaseName}'); sh.shardCollection('${databaseName}.${collectionName}', {${shard_key}: ${index_type}})"
