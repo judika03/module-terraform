@@ -23,20 +23,20 @@ variable "subnetwork" {
   default     = "default"
 }
 
+variable "subnetwork_project" {
+  description = "The subnetwork to host the compute instances in"
+  default     = "spid-non-prod"
+}
 variable "num_instances" {
   description = "Number of instances to create"
   default="1"
 }
 
-variable "service_account" {
-  description = "The GCP project to use for integration tests"
-  default        = "redis-server"
-}
 
 variable "prefix" {
   type        = string
   description = "Prefix applied to service account names."
-  default     = "aku"
+  default     = "spid"
 }
 
 
@@ -59,13 +59,14 @@ variable "master_node" {
 
 variable "data_node" {
   description = "Node functions as data node"
-  default     = false
+  default     = true
 }
 
 variable "heap_size" {
   description = "Heap size, should be half of the node memory up to 31g"
   default     = "4g"
 }
+
 variable "minimum_master_nodes" {
   description = "Minimum master node"
   default     = 2
