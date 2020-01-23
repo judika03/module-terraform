@@ -1,5 +1,5 @@
 data "template_file" "instance_startup_script" {
-  template = "${file("../config/elastic/elastic.sh.tpl")}"
+  template = "${file("template/elastic.sh.tpl")}"
   vars = {
     PROXY_PATH = ""
     project_id             = "${var.project_id}"
@@ -14,7 +14,7 @@ data "template_file" "instance_startup_script" {
 }
 
 data "template_file" "instance_startup_script1" {
-  template = "${file("../config/elastic/elastic.sh.tpl")}"
+  template = "${file("template/elastic.sh.tpl")}"
   vars = {
     PROXY_PATH = ""
     project_id             = "${var.project_id}"
@@ -27,3 +27,5 @@ data "template_file" "instance_startup_script1" {
 
   }
 }
+
+

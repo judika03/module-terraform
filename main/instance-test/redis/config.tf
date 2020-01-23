@@ -1,5 +1,5 @@
 data "template_file" "config1" {
-  template = "${file("../config/redis/redis1.sh.tpl")}"
+  template = "${file("template/redis1.sh.tpl")}"
   vars = {
     redis1 = "${google_compute_address.internal["redis-1"].address}"
     redis2 = "${google_compute_address.internal["redis-2"].address}"
@@ -8,7 +8,7 @@ data "template_file" "config1" {
 }
 
 data "template_file" "config2" {
-  template = "${file("../config/redis/redis2.sh.tpl")}"
+  template = "${file("template/redis2.sh.tpl")}"
   vars = {
    redis1 = "${google_compute_address.internal["redis-1"].address}"
     redis2 = "${google_compute_address.internal["redis-2"].address}"
@@ -17,7 +17,7 @@ data "template_file" "config2" {
   }
 }
 data "template_file" "config3" {
-  template = "${file("../config/redis/redis3.sh.tpl")}"
+  template = "${file("template/redis3.sh.tpl")}"
   vars = {
     redis1 = "${google_compute_address.internal["redis-1"].address}"
     redis2 = "${google_compute_address.internal["redis-2"].address}"
