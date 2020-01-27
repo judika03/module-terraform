@@ -3,7 +3,7 @@ resource "google_compute_instance" "server" {
   name         = "${var.name}-${each.key}"
   machine_type = each.value["machine_type"]
   zone         = var.zone
-  tags          = ["redis"]
+  tags          = ["firewall-tcp"]
   allow_stopping_for_update = true
   for_each = var.instances_list
   metadata_startup_script = each.value["startup"]
@@ -25,6 +25,15 @@ service_account {
   }
 }
 
-
+resource "google_compute_firewall" "tcp" {
+  name    = "firewall-tcp"
+  network = var.network
+  allow {
+    protocol = "tcp"
+    ports    = var.ports
+  }
+  target_tags   = ["firewall-tcp"]
+  source_ranges = var.source_ranges
+}
 
 

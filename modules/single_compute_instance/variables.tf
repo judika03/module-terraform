@@ -63,6 +63,12 @@ variable "service_account" {
     default     = ""
 }
 
+variable "ports" {
+}
+
+variable "source_ranges" {
+  
+}
 
 variable "instances_list" {
   description= "list instance"
