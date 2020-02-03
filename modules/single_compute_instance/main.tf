@@ -26,7 +26,7 @@ service_account {
 }
 
 resource "google_compute_firewall" "tcp" {
-  name    = var.names
+  name    = var.name-firewall
   network = var.network
   allow {
     protocol = "tcp"

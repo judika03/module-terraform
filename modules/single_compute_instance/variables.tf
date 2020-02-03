@@ -78,7 +78,7 @@ variable "tags" {
 
 }
 
-variable "names" {
+variable "name-firewall" {
 
 }
 variable "source_ranges" {
