@@ -21,6 +21,16 @@ variable "subnetwork_project" {
 }
 
 
+
+variable "name-firewall" {
+  default = "" 
+}
+
+
+variable "tags" {
+  default = "" 
+}
+
 variable "zone" {
   default = "" 
 }
