@@ -22,9 +22,6 @@ variable "subnetwork_project" {
 
 
 
-variable "names" {
-
-}
 
 
 
