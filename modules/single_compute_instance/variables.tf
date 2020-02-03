@@ -23,12 +23,12 @@ variable "subnetwork_project" {
 
 
 variable "names" {
-  default = "" 
+
 }
 
 
 variable "tags" {
-  default = "" 
+
 }
 
 variable "zone" {
