@@ -3,7 +3,7 @@ resource "google_compute_instance" "server" {
   name         = "${var.name}-${each.key}"
   machine_type = each.value["machine_type"]
   zone         = var.zone
-  tags          = var.tags
+  tags         = var.tags
   allow_stopping_for_update = true
   for_each = var.instances_list
   metadata_startup_script = each.value["startup"]

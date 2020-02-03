@@ -27,9 +27,7 @@ variable "names" {
 }
 
 
-variable "tags" {
 
-}
 
 variable "zone" {
   default = "" 
@@ -76,6 +74,13 @@ variable "service_account" {
 variable "ports" {
 }
 
+variable "tags" {
+
+}
+
+variable "names" {
+
+}
 variable "source_ranges" {
   
 }
