@@ -22,7 +22,7 @@ variable "subnetwork_project" {
 
 
 
-variable "name-firewall" {
+variable "names" {
   default = "" 
 }
 
