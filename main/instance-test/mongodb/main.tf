@@ -23,13 +23,16 @@ module "mongo" {
     router_port = 27020
 
     ## firewall ##
-    ports = ["27010", "27020", "27017"]
+    ports = ["27010", "27020", "27017", "22"]
     source_ranges = ["0.0.0.0/0"]
 
     # image (must use ubuntu and mongodb)
     ubuntu_mongo_image = data.google_compute_image.test_image.self_link
 
-    number_of_shards = 4
+    shard_key = "name"
+    index_type = 1
+
+    additional_shards = 2
 }
 
 

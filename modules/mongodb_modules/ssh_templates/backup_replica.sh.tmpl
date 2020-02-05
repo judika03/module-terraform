@@ -27,17 +27,10 @@ replication:
 " >> /etc/mongod.conf
 
 
-
 ## starting the mongo instance ##
 mongod --config /etc/mongod.conf & 
 sleep 10
 
-## initiate replica set ##
-mongo --host ${internalIp} --port ${port} --eval "rs.initiate();"
 
-sleep 5
-
-## add shard to cluster ##
-mongo --host ${router_internal_ip} --port ${router_port} --eval "sh.addShard('${replicaSetName}/${internalIp}:${port}')"
-
-
+## register secodary to the primary ##
+mongo --host ${primary_ip} --port ${port} --eval 'rs.add("${internalIp}:${port}")'

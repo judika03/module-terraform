@@ -1,0 +1,29 @@
+### creating arbiter ###
+
+
+## create directory needed for mongo ##
+sleep 30
+sudo mkdir /var/log/mongodb -p
+sudo mkdir /data -p
+sudo mkdir /data/mongodb -p
+
+
+## creating the config file ##
+sudo echo "
+systemLog:
+  destination: file
+  path: /var/log/mongodb/mongo-arb.log
+  logAppend: true
+storage:
+  dbPath: /data/mongodb-arb
+net:
+  bindIp: ${internalIp} 
+  port: ${arbiter_port}
+sharding:
+  clusterRole: shardsvr
+replication:
+  replSetName: ${replicaSetName}
+" >> /etc/mongod-arb.conf
+
+
+mongo --host ${primary_ip} --port ${port} --eval "rs.addArb('${internalIp}:${arbiter_port}')"

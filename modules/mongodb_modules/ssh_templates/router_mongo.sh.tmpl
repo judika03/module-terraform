@@ -61,3 +61,11 @@ mongo --host ${externalIp} --port 27020 --eval "sh.addShard('${shard_address}')"
 
 # db name is the name of the db from vm 1... shard key -> field yg jdi key untuk di hash... index type  (hashed, 1, -1)
 mongo --host ${externalIp} --port 27020 --eval "sh.enableSharding('${databaseName}'); sh.shardCollection('${databaseName}.${collectionName}', {${shard_key}: ${index_type}})"
+
+## change ssh config setting to enable password authentication ##
+sudo sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
+
+sudo service ssh restart
+
+sudo su
+echo -e "123456\n123456" | passwd stevenalvin1999
