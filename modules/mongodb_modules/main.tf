@@ -1,6 +1,6 @@
 locals {
     ## control the number of shards ##
-    number_of_shards = var.number_of_shards
+    number_of_shards = var.additional_shards
 
     remove_shard = "db.adminCommand({'removeShard': 'replicaset-1'})"
 }
