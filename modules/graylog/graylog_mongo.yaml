@@ -1,0 +1,23 @@
+---
+- name: Configuring new node
+  #Host should be the new added node
+  hosts: all
+  remote_user: judika.gultom
+  become: true
+  vars:
+
+    Node_IPs: "{{lookup('file','graylog.ini') | replace('\n',',') }}"
+    Mongo_Setup: "/graylog?replicaSet=rs01"
+    Mongodb_URI: "mongodb://{{Node_IPs}}{{Mongo_Setup}}"
+
+  tasks:
+    - name: Modifying MongoDB URI
+      lineinfile:
+        path: /etc/graylog/server/server.conf
+        firstmatch: yes
+        regexp: 'mongodb_uri ='
+        line: 'mongodb_uri = {{Mongodb_URI}}'
+
+    - name: Restart after modifying
+      shell: systemctl restart graylog-server
+    
