@@ -8,7 +8,7 @@ provider "google" {
   region      = "asia-southeast1"
 }
 
-resource "google_compute_instance" "shards" {
+resource "google_compute_instance" "nodes" {
     name = "graylog-tf-${count.index}"
     project ="spid-non-prod"
     machine_type = var.machine_type
@@ -26,28 +26,37 @@ resource "google_compute_instance" "shards" {
 
     network_interface{
         network = var.network
-        network_ip = google_compute_address.graylog-spid[count.index].address #google_compute_address.internal_ip[each.key].address
+        network_ip = google_compute_address.graylog-spid[count.index].address 
         access_config{
             nat_ip = null
         }
     }
-    ## router have to be created first before shard is created ##
-
-#     provisioner "local-exec" {
-#     command = <<EOT
-#       sleep 40;
-# 	  echo ${google_compute_address.graylog-spid[count.index].address} | tee -a  ansible-graylog/graylog.ini;
-#       export ANSIBLE_HOST_KEY_CHECKING=False;
-# 	  ansible-playbook -u ${var.ansible_user} -i ansible-graylog/graylog.ini ansible-graylog/graylog_mongo.yaml
-#     EOT
-#   }
 }
 
-## static internal ip for shards ##
+# Instance group for the load balancer
+resource "google_compute_instance_group" "graylog-ig2" {
+  name = "graylog-ig2"  
+  instances = google_compute_instance.nodes.*.self_link
+  zone = "asia-southeast1-a"
+}
+
+## Static internal ip for.nodes ##
 resource "google_compute_address" "graylog-spid" {
     name = "graylog-tf-${count.index}"
     project = "spid-non-prod"
     count = var.num_instances
     address_type = "INTERNAL"
     purpose      = "GCE_ENDPOINT"
+
+    
+}
+
+# Runs the ansible command when a node is created/destroyed
+resource "null_resource" "ansible" {
+    triggers = {
+        addresses = "${join(",",google_compute_instance.nodes.*.self_link)}"
+    }
+    provisioner "local-exec" {
+        command = "echo ${join(",",google_compute_address.graylog-spid.*.address)} nodes; sleep 40; export ANSIBLE_HOST_KEY_CHECKING=False; ansible-playbook -u ${var.ansible_user} -i graylog.ini --ssh-extra-args '-o StrictHostKeyChecking=no'  ansible_graylog.yaml "
+    }
 }
