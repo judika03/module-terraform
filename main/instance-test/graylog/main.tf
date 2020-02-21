@@ -16,9 +16,27 @@ module "graylog" {
 }
 
 
+module "gce-ilb" {
+  source       = "github.com/judika03/module-terraform/modules/lb-internal"
+  project      = var.project_id
+  network      = var.network
+  subnetwork   = var.subnetwork
+  region       = var.region
+  name         = "graylog-lb-terraform"
+  health_check = local.health_check
+  source_tags  = ["allow-group1"]
+  ports        = ["9000"]
+  target_tags  = ["allow-lb-service"]
+    backends = [
+    {
+      group       = "${module.graylog.instance_group_url}" 
+      description = ""
+    }
+    ]
+}
+
 resource "local_file" "ansible_inventory" {
-    # 10.148.10.81 is the IP address of the master node 
-    content   = join("\n",concat(["10.148.10.81"],module.graylog.instances_self_links))
+    content   = join("\n",concat(module.graylog.master_self_links,module.graylog.instances_self_links))
     filename = "graylog.ini"
 
 } 
