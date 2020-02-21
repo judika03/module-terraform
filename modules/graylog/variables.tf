@@ -54,5 +54,7 @@ variable "ame-firewall" {
 
 
 variable "ansible_user" {
+  description = "Ansible user that will be used to authenticate the SSH"
+  type = string
   default = "judika.gultom"
 }
