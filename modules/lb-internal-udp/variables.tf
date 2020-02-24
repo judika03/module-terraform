@@ -95,7 +95,7 @@ variable "ip_address" {
 
 variable "ip_protocol" {
   description = "The IP protocol for the backend and frontend forwarding rule. TCP or UDP."
-  default     = "TCP"
+  default     = "UDP"
 }
 
 variable "service_label" {

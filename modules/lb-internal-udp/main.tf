@@ -50,7 +50,7 @@ resource "google_compute_health_check" "udp" {
   healthy_threshold   = var.health_check["healthy_threshold"]
   unhealthy_threshold = var.health_check["unhealthy_threshold"]
 
-  udp_health_check {
+  tcp_health_check {
     port         = var.health_check["port"]
     request      = var.health_check["request"]
     response     = var.health_check["response"]
