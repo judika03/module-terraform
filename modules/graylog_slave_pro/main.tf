@@ -10,6 +10,7 @@ resource "google_compute_instance" "nodes" {
     zone = "asia-southeast1-a"
     tags = ["firewall-ssh","graylog-spid","udp-graylog"]
     count = var.num_instances
+    allow_stopping_for_update = true
     boot_disk {
         initialize_params {
             image = data.google_compute_image.test_image.name
