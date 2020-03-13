@@ -1,0 +1,15 @@
+PRIMARYIP=$(mongo --host ${local_ip} --port ${port} --eval "db.isMaster().primary" --quiet)
+
+if [ $(mongo --host ${local_ip}  --port ${port} --eval 'db.isMaster().ismaster' --quiet) = true ]
+then
+    mongo --host ${local_ip} --port ${port} --eval "rs.stepDown()"
+    sleep 15
+    while [ $(mongo --host ${local_ip} --port ${port} --eval "db.isMaster().primary" --quiet) == "" ]
+    do
+        echo "waiting for primary to step up"
+    done
+    PRIMARYIP=$(mongo --host ${local_ip} --port ${port} --eval "db.isMaster().primary" --quiet)
+    mongo --host $PRIMARYIP --eval "rs.remove(\"${local_ip}:${port}\")"
+else
+    mongo --host $PRIMARYIP --eval "rs.remove(\"${local_ip}:${port}\")"
+fi

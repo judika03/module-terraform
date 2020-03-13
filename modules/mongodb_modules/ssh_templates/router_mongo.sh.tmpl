@@ -5,8 +5,11 @@ sudo mkdir /data -p
 sudo mkdir /data/mongodb -p
 
 
-## remove default config file ##
-sudo rm /etc/mongod.conf
+## create keyfile ##
+sudo mkdir /keyfile -p
+gsutil cp gs://mongo-key/mongo/mongo.yaml /keyfile
+chmod 600 /keyfile/mongo.yaml
+chown root:root /keyfile/mongo.yaml
 
 
 ## creating config file of config server ##
@@ -18,13 +21,15 @@ systemLog:
 storage:
   dbPath: /data/mongodb
 net:
-  bindIp: ${config_internalIp}
+  bindIp: localhost, ${config_internalIp}
   port: ${config_port}
 sharding:
   clusterRole: configsvr
 replication:
   replSetName: ${config_replicaSetName}
-" >> /etc/mongod-config.conf
+security:
+  keyFile: /keyfile/mongo.yaml
+" > /etc/mongod-config.conf
 
 
 ## creating config file of router ##
@@ -36,28 +41,32 @@ systemLog:
 sharding:
   configDB: ${config_replicaSetName}/${config_internalIp}:${config_port}
 net:
-  bindIp: ${config_internalIp}
-  port: 27020
+  bindIp: localhost, ${config_internalIp}
+  port: ${router_port}
+security:
+  keyFile: /keyfile/mongo.yaml
 " >> /etc/mongos.conf
 
 
 ## initiate config server ##
 sudo mongod --config /etc/mongod-config.conf &
-sleep 10
+sleep 5
 
 ## connect to config server and initiate replica set ##
-mongo --host ${config_internalIp} --port ${config_port} --eval "rs.initiate()";
-
-sleep 5
+mongo --host localhost --port ${config_port} --eval "rs.initiate()"; > /tmp/configserverreplicaset.txt
 
 ## initiate router ##
 sudo mongos --config /etc/mongos.conf &
-sleep 10
+sleep 5
+## create user for this shard
+mongo  admin --port ${router_port} --eval "db.createUser({user: \"${username}\" , pwd: \"${password}\", roles: [\"clusterAdmin\", \"userAdminAnyDatabase\"]})" > /tmp/adduser.txt
 
 
-# replicasetname is the name of the shard to be added (vm-1) AND its ip
-mongo --host ${externalIp} --port 27020 --eval "sh.addShard('${shard_address}')"; 
+## change ssh config setting to enable password authentication ##
+sudo sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
 
+sudo service ssh restart
 
-# db name is the name of the db from vm 1... shard key -> field yg jdi key untuk di hash... index type  (hashed, 1, -1)
-mongo --host ${externalIp} --port 27020 --eval "sh.enableSharding('${databaseName}'); sh.shardCollection('${databaseName}.${collectionName}', {${shard_key}: ${index_type}})"
+sudo su
+echo -e "123456\n123456" | passwd steven_alvin
+

@@ -3,11 +3,13 @@ sudo mkdir /var/log/mongodb -p
 sudo mkdir /data -p
 sudo mkdir /data/mongodb -p
 
+
 ## create keyfile ##
 sudo mkdir /keyfile -p
 gsutil cp gs://mongo-key/mongo/mongo.yaml /keyfile
-chmod 600 /keyfile/mongo.yaml
+chmod 400 /keyfile/mongo.yaml
 chown root:root /keyfile/mongo.yaml
+
 
 ## creating the config file ##
 sudo echo "
@@ -31,18 +33,10 @@ security:
 
 ## starting the mongo instance ##
 mongod --config /etc/mongod.conf & 
-sleep 5
+sleep 20
 
-## initiate replica set ##
-mongo --host localhost  --port ${port} --eval "rs.initiate();" >/tmp/errorreplicaset.txt
-
-sleep 5
-
-## create user for this shard
-mongo  admin --port ${port} --eval "db.createUser({user: \"${username}\" , pwd: \"${password}\", roles: [\"clusterAdmin\", \"userAdminAnyDatabase\"]})" >/tmp/errorusershard.txt
-sleep 5
-## add shard to cluster ##
-mongo --host ${router_internal_ip} --port ${router_port} -u shopee -p shopee1234 --eval "sh.addShard('${replicaSetName}/${internalIp}:${port}')" >/tmp/erroradddshard.txt
+## register secodary to the primary ##
+mongo --host ${primary_ip} --port ${port} -u shopee -p shopee1234 --eval 'rs.add("${internalIp}:${port}")' > /tmp/errorbackuptop.txt
 
 
 ## change ssh config setting to enable password authentication ##
@@ -60,3 +54,7 @@ sudo usermod -a -G sudo sre
 
 # set the new user sudoers for NOPASSWD
 echo "sre ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+
+
+

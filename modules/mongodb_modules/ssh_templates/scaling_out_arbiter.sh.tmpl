@@ -1,0 +1,13 @@
+echo "$PATH" > /tmp/thepath.txt
+export PATH="$PATH:/snap/bin"
+echo "$PATH" >> /tmp/thepath.txt
+
+gcloud container clusters get-credentials spid-test-cluster --zone asia-southeast1-a --project spid-non-prod &&
+if [ $? -eq 1 ]; then echo "error: $result" > /tmp/error.txt; fi
+gcloud config set project spid-non-prod
+
+kubectl delete deployment mongo-arb-${index}
+
+
+mongo --host ${primary_ip} --port ${port} --eval "rs.remove('${arbiter_ip}:${arbiter_port})
+

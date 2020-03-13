@@ -1,0 +1,150 @@
+
+
+echo "$PATH" > /tmp/thepath.txt
+export PATH="$PATH:/snap/bin"
+echo "$PATH" >> /tmp/thepath.txt
+
+gcloud container clusters get-credentials spid-test-cluster --zone asia-southeast1-a --project spid-non-prod &&
+if [ $? -eq 1 ]; then echo "error: $result" > /tmp/error.txt; fi
+gcloud config set project spid-non-prod &&
+
+
+
+## create kubernetes arbiter service ##
+sudo echo "
+apiVersion: v1
+kind: Service
+metadata:
+    name: mongo-arb-svc-${index}
+    labels:
+        app: mongo-arb-${index}
+spec:
+    type: NodePort
+    ports:
+        - port: 27017
+          protocol: TCP
+          targetPort: 27017
+          
+    selector:
+        app: mongo-arb-${index}
+" > /tmp/arb-service.yaml
+
+kubectl apply -f /tmp/arb-service.yaml
+export NODE_PORT="$(kubectl get service/mongo-arb-svc-${index} -o jsonpath='{.spec.ports[0].nodePort}')"
+
+## create kubernetes deployment yaml file ##
+sudo echo "
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-arb-${index}
+  labels:
+    app: mongo-arb-${index}
+spec:
+  selector:                                               
+    matchLabels:
+      app: mongo-arb-${index}     
+  replicas: 1                                             
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate                                   
+    rollingUpdate: 
+      maxUnavailable: 1                                   
+      maxSurge: 1                                         
+  template:                                               
+    metadata:
+      labels:
+        app: mongo-arb-${index}                              
+    spec:
+      containers:
+        - image: mongo
+          imagePullPolicy: Always                         
+          name: mongo-arb-${index}
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+          ports:
+            - containerPort: 27017
+          command: 
+            - /bin/sh
+            - -c
+            - mongo --host ${primary_ip} --port ${port} -u shopee -p shopee1234 --eval \"rs.addArb('${load_balancer}:$NODE_PORT')\"; sh /tmp/config/init.sh
+          volumeMounts:
+            - name: config-arb
+              mountPath: /tmp/config
+      volumes:
+        - name: config-arb
+          configMap:
+            name: mongo-arb-init-${index}
+" > /tmp/arb-deployment.yaml
+
+## create configMap for mongo-arb kubernetes ##
+sudo echo "
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-arb-init-${index}
+data:
+  init.sh: |
+    #!/bin/sh
+    ### creating arbiter ###
+    echo \"
+    nULTR5JQEx7JhNFCD2YabsXeDdOmPC//82cwQ9B5kKe85W9tP0+kw+wnsKm1VUBj
+    0Ov0LwK39o+kS4MdZ9Z/LuVznJsrPLguqXx+aU7FCUKcjf0g9xSF/U3Q6vdZfzJr
+    durKi2UQh0qx9rI5+RE8y7lYKxvK7e8r89rvSPoQxAxgw7l8j/nhbcN72sY2Ij+2
+    EiOOZ62fjSHV3tWl4dgKkuBr5Y81xfz7buw1zajyvJm8YqvILD7fSvpbr1Tsbvms
+    U1oa6MQ/Ab33RJHdmWIWKqkwoet5XhY7qzYZ40t77b4Fwl8SU748U3dYYOY7V0ic
+    ywc5Qx3ay/rJGjT/rUhPU3io/TciG8eCjFCc+G/cjLFy+Jcq4v83saQwMI2hBFsi
+    OEA/jLoQmBwdXSDJtReHkDVB9wFtgWdQpOzNqDFE0qy3R697eqAtrdgPvUAU3kzx
+    aVCKDal1/MoZ0ZU95KZizNDWtjLqrFfDoycCuYRi87BE6HB5veP4Ws7IObzVCrkw
+    grR54m6j5wEs+EtDl9OFtsR5WVB9HNpHqsrA2i7Z+D5JVVoa760nsS1zwv/Ku/dF
+    yxGQe98d14Ab0LIB7FbNgUHIs3vJugv5VHt53pqnW+NMGu56YvLXWQAcsNyb6G1Q
+    lxFIrVqY76LcZeUgmXCbRwAnOQtW3/XI5wboLwQhr60ZxTcvLkN/7GGh5FScgUUw
+    Aa1apvW3VtsjPvpyQ4eCmYcDd1wTeIjxDhNXAX1V4b6SugvUSySgrOl/GwfRJXj0
+    fOCCSoWckXYIS6NH7glMp6V2n2Wtly83njjt/Pqi3PCBYj2r2RjiiksR9IbB9OBa
+    +4JFEoTZW2myLZQ5ZHyxzTR5YMYZA5/ONezZDaRhikrfjVPUAnjzurMFFd/SZvKl
+    sTU3cST+1fdVK91Q2CEFAMwzj2OpqYHAIGfwZ4OQvazkOBbBVG57mzz4a+yrMUw6
+    IpIjSN/lE1ke7KK6PRaGewsMyjOVWF6vgfBNsdMCdCRaS2Q1
+     \" > /etc/mongo.yaml
+     
+    ## create directory needed for mongo ##
+    mkdir /var/log/mongodb -p
+    mkdir /data -p
+    mkdir /data/mongodb-arb -p
+    chmod 600 /etc/mongo.yaml
+    ## creating the config file ##
+    echo \"
+    systemLog:
+      destination: file
+      path: /var/log/mongodb/mongo-arb.log
+      logAppend: true
+    storage:
+      dbPath: /data/mongodb-arb
+    net:
+      bindIp: localhost, \$POD_IP
+      port: ${port}
+    sharding:
+      clusterRole: shardsvr
+    replication:
+      replSetName: ${replicaSetName}
+    security:
+      keyFile: /etc/mongo.yaml
+    \" > /etc/mongod-arb.conf
+
+    
+    ## starting the mongo instance ##
+    mongod --config /etc/mongod-arb.conf
+" > /tmp/arb-configmap.yaml
+
+kubectl delete -f /tmp/arb-configmap.yaml
+kubectl delete -f /tmp/arb-deployment.yaml
+sleep 35
+## applyin mongo-arb deployment and its service ##
+
+kubectl apply -f /tmp/arb-configmap.yaml &&
+kubectl apply -f /tmp/arb-deployment.yaml
+
+

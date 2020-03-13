@@ -1,0 +1,17 @@
+
+## update shards status ##
+mongo --host ${router_ip} --port ${router_port} --eval "connect('${router_ip}:${router_port}/config').shards.find()" > /tmp/shards_status_${index}.txt
+
+while grep -w '"draining" : true' /tmp/shards_status_${index}.txt; do mongo --host ${router_ip} --port ${router_port} --eval "connect('${router_ip}:{router_port/config').shards.find();" > /tmp/shards_status_${index}.txt; echo "waiting for other drainage to finish"; done; echo "start draining!"
+
+
+## remove output file if exist ##
+rm -f /tmp/draining_status_${index}.txt
+
+
+## creating output file for draining status ##
+touch /tmp/draining_status_${index}.txt
+
+
+## check and wait for draining to finish##
+while ! grep -w '"state" : "completed"' /tmp/draining_status_${index}.txt; do mongo --host ${router_ip} --port ${router_port} --eval "db.adminCommand({'removeShard': '${replicaset_name}'});" > /tmp/draining_status_${index}.txt; echo "waiting for drainage"; done; echo "drainaige completed"

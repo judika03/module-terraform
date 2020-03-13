@@ -33,11 +33,6 @@ security:
 mongod --config /etc/mongod.conf & 
 sleep 5
 
-## initiate replica set ##
-mongo --host localhost  --port ${port} --eval "rs.initiate();" >/tmp/errorreplicaset.txt
-
-sleep 5
-
 ## create user for this shard
 mongo  admin --port ${port} --eval "db.createUser({user: \"${username}\" , pwd: \"${password}\", roles: [\"clusterAdmin\", \"userAdminAnyDatabase\"]})" >/tmp/errorusershard.txt
 sleep 5
