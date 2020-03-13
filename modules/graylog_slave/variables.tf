@@ -11,12 +11,19 @@ variable "region" {
   default     = "asia-southeast1"
 }
 
+variable "private_key" {
+  default = "~/.ssh/MyKeyPair.pem"
+}
+
 variable "zone" {
   description = "The GCP region to create and test resources in"
   type        = string
   default     = "asia-southeast1-a"
 }
-
+variable "network" {
+  description = "The subnetwork to host the compute instances in"
+  default     = "default"
+}
 
 variable "subnetwork" {
   description = "The subnetwork to host the compute instances in"
@@ -31,24 +38,23 @@ variable "num_instances" {
   description = "Number of instances to create"
   default="1"
 }
+variable "machine_type" {
 
-variable "prefix" {
-  type        = string
-  description = "Prefix applied to service account names."
-  default     = "spid"
+}
+
+variable "tags" {
+  description = "Number of instances to create"
+  default="teser"
+}
+
+variable "ame-firewall" {
+  description = "Number of instances to create"
+  default="teser"
 }
 
 
-
-
-variable "cluster_name" {
-  description = "Name of the elasticsearch cluster, used in node discovery"
-  default     = "elasticsearch"
+variable "ansible_user" {
+  description = "Ansible user that will be used to authenticate the SSH"
+  type = string
+  default = "judika.gultom"
 }
-
-variable "zones" {
-  type    = list
-  default = ["asia-southeast1-a", "asia-southeast1-b", "asia-southeast1-c"]
-}
-
-

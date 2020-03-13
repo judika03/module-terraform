@@ -21,6 +21,11 @@ variable "subnetwork_project" {
 }
 
 
+
+
+
+
+
 variable "zone" {
   default = "" 
 }
@@ -63,6 +68,19 @@ variable "service_account" {
     default     = ""
 }
 
+variable "ports" {
+}
+
+variable "tags" {
+
+}
+
+variable "name-firewall" {
+
+}
+variable "source_ranges" {
+  
+}
 
 variable "instances_list" {
   description= "list instance"
