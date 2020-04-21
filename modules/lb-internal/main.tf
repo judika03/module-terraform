@@ -106,7 +106,8 @@ resource "google_compute_firewall" "default-hc" {
     ports    = [var.health_check["port"]]
   }
 
-  source_ranges           = ["130.211.0.0/22", "35.191.0.0/16"]
+  source_ranges           = ["10.148.0.0/20","115.85.78.0/28", "103.247.218.112/28","122.11.166.8/32","101.127.248.173/32
+"]
   target_tags             = var.target_tags
   target_service_accounts = var.target_service_accounts
 }
