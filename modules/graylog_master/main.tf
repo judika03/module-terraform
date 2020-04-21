@@ -21,7 +21,7 @@ resource "google_compute_instance" "master" {
     project ="spid-non-prod"
     machine_type = var.machine_type
     zone = "asia-southeast1-a"
-    tags = ["firewall-ssh","graylog-spid","udp-graylog"]
+    tags = ["firewall-ssh","graylog-spid","udp-graylog","http-server"]
     boot_disk {
         initialize_params {
             image = data.google_compute_image.test_image.name
