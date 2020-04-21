@@ -27,9 +27,6 @@ resource "google_compute_instance" "nodes" {
     network_interface{
         network = var.network
         network_ip = google_compute_address.graylog-spid[count.index].address 
-        access_config{
-            nat_ip = null
-        }
     }
 }
 
